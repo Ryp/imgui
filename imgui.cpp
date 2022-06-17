@@ -1037,6 +1037,11 @@ static void*                GImAllocatorUserData = NULL;
 // [SECTION] USER FACING STRUCTURES (ImGuiStyle, ImGuiIO)
 //-----------------------------------------------------------------------------
 
+static float srgb_eotf_inverse_fast(float v)
+{
+    return v * v;
+}
+
 ImGuiStyle::ImGuiStyle()
 {
     Alpha                   = 1.0f;             // Global alpha applies to everything in Dear ImGui.
@@ -1082,6 +1087,16 @@ ImGuiStyle::ImGuiStyle()
 
     // Default theme
     ImGui::StyleColorsDark(this);
+
+    for (int i = 0; i < ImGuiCol_COUNT; i++)
+    {
+        ImVec4 style_color = Colors[i];
+        style_color.x = srgb_eotf_inverse_fast(style_color.x);
+        style_color.y = srgb_eotf_inverse_fast(style_color.y);
+        style_color.z = srgb_eotf_inverse_fast(style_color.z);
+
+        Colors[i] = style_color;
+    }
 }
 
 // To scale your entire UI (e.g. if you want your app to use High DPI or generally be DPI aware) you may use this helper function. Scaling the fonts is done separately and is up to you.
